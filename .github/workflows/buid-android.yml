@@ -1,2 +1,67 @@
-      - name: Build Android APK
-        run: pnpm exec cap run android --prod --release
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web app
+        run: pnpm run build
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          # This line is the specific fix for your error
+          java-version: '21'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Add Android Platform
+        run: pnpm exec cap add android
+
+      - name: Sync Capacitor project
+        run: pnpm exec cap sync android
+
+      - name: Build and Sign Release APK
+        working-directory: android
+        # This single command builds the app and signs it using your secrets
+        run: ./gradlew assembleRelease -Pandroid.injected.signing.store.file=$(pwd)/release.keystore -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
+        env:
+          # You must have these secrets configured in your repository settings
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Decode Keystore
+        # This step must happen before the build
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/release.keystore
+      
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Translator.app-release.apk
+          path: android/app/build/outputs/apk/release/app-release.apk
