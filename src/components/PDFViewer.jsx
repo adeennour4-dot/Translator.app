@@ -1,51 +1,51 @@
-import { useState, useEffect } from 'react'
-import { Document, Page, pdfjs } from 'react-pdf'
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react'
-import { Button } from '@/components/ui/button.jsx'
-import { Card, CardContent } from '@/components/ui/card.jsx'
+import { useState, useEffect } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
+import { Button } from '@/components/ui/button.jsx';
+import { Card, CardContent } from '@/components/ui/card.jsx';
 
-// Set up PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`
+// --- FIX: Use a local worker file instead of a CDN for reliability in Capacitor/mobile --- 
+pdfjs.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.js`;
 
 const PDFViewer = ({ file, onLoadSuccess, className = '' }) => {
-  const [numPages, setNumPages] = useState(null)
-  const [pageNumber, setPageNumber] = useState(1)
-  const [scale, setScale] = useState(1.0)
-  const [error, setError] = useState(null)
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [scale, setScale] = useState(1.0);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    setPageNumber(1)
-    setError(null)
-  }, [file])
+    setPageNumber(1);
+    setError(null);
+  }, [file]);
 
   const onDocumentLoadSuccess = ({ numPages }) => {
-    setNumPages(numPages)
-    setError(null)
+    setNumPages(numPages);
+    setError(null);
     if (onLoadSuccess) {
-      onLoadSuccess({ numPages })
+      onLoadSuccess({ numPages });
     }
-  }
+  };
 
   const onDocumentLoadError = (error) => {
-    console.error('Error loading PDF:', error)
-    setError('Failed to load PDF document')
-  }
+    console.error('Error loading PDF:', error);
+    setError('Failed to load PDF document. The file might be corrupt or inaccessible.');
+  };
 
   const goToPrevPage = () => {
-    setPageNumber(prev => Math.max(prev - 1, 1))
-  }
+    setPageNumber(prev => Math.max(prev - 1, 1));
+  };
 
   const goToNextPage = () => {
-    setPageNumber(prev => Math.min(prev + 1, numPages || 1))
-  }
+    setPageNumber(prev => Math.min(prev + 1, numPages || 1));
+  };
 
   const zoomIn = () => {
-    setScale(prev => Math.min(prev + 0.2, 3.0))
-  }
+    setScale(prev => Math.min(prev + 0.2, 3.0));
+  };
 
   const zoomOut = () => {
-    setScale(prev => Math.max(prev - 0.2, 0.5))
-  }
+    setScale(prev => Math.max(prev - 0.2, 0.5));
+  };
 
   if (error) {
     return (
@@ -55,7 +55,7 @@ const PDFViewer = ({ file, onLoadSuccess, className = '' }) => {
           <div className="text-sm text-muted-foreground">{error}</div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (!file) {
@@ -65,7 +65,7 @@ const PDFViewer = ({ file, onLoadSuccess, className = '' }) => {
           <div className="text-muted-foreground">No PDF file selected</div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -132,8 +132,7 @@ const PDFViewer = ({ file, onLoadSuccess, className = '' }) => {
         </div>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default PDFViewer
-
+export default PDFViewer;
