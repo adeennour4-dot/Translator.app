@@ -25,7 +25,7 @@ jobs:
           node-version: 18
           cache: 'pnpm'
 
-      - name: Add pnpm global bin to PATH
+      - name: Setup pnpm global bin (for any globals, though we avoid them)
         run: |
           pnpm setup
           echo "PNPM_HOME=$HOME/.local/share/pnpm" >> $GITHUB_ENV
@@ -39,7 +39,7 @@ jobs:
           echo "$(pnpm bin)" >> $GITHUB_PATH
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile || pnpm install
+        run: pnpm install --frozen-lockfile || pnpm install  # Fallback if no lockfile
 
       - name: Install Capacitor CLI and TypeScript locally
         run: pnpm add -D @capacitor/cli typescript
@@ -48,7 +48,7 @@ jobs:
         run: pnpm add @capacitor/core @capacitor/android
 
       - name: Build web app
-        run: pnpm run build || echo "No build script found or build failed, proceeding anyway if assets exist"
+        run: pnpm run build || echo "No build script defined, skipping"  # Adjust if your build command differs (e.g., 'ionic build')
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -62,9 +62,9 @@ jobs:
       - name: Initialize Capacitor if needed
         run: |
           if [ ! -f "capacitor.config.json" ] && [ ! -f "capacitor.config.ts" ]; then
-            pnpm exec cap init com.example.translator dist  # Replace 'com.example.translator' with your appId and 'dist' with your webDir if different
+            pnpm exec cap init com.example.app app --web-dir dist  # Replace with your app ID/name; adjust --web-dir to your build output (e.g., 'build' or 'www')
           else
-            echo "Capacitor config already exists"
+            echo "Capacitor config exists"
           fi
 
       - name: Add Android platform to Capacitor
@@ -72,7 +72,7 @@ jobs:
           if [ ! -d "android" ]; then
             pnpm exec cap add android
           else
-            echo "Android platform already exists"
+            echo "Android platform exists"
           fi
 
       - name: Copy web assets to Android project
