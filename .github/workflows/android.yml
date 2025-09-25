@@ -48,7 +48,7 @@ jobs:
         run: pnpm add @capacitor/core @capacitor/android
 
       - name: Build web app
-        run: pnpm run build || echo "No build script defined, skipping"  # Adjust if your build command differs (e.g., 'ionic build')
+        run: pnpm run build || echo "No build script defined, skipping"  # Adjust if your build command differs
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -62,7 +62,7 @@ jobs:
       - name: Initialize Capacitor if needed
         run: |
           if [ ! -f "capacitor.config.json" ] && [ ! -f "capacitor.config.ts" ]; then
-            pnpm exec cap init com.example.app app --web-dir dist  # Replace with your app ID/name; adjust --web-dir to your build output (e.g., 'build' or 'www')
+            pnpm exec cap init com.example.app app --web-dir dist  # Replace with your app ID/name; adjust --web-dir
           else
             echo "Capacitor config exists"
           fi
