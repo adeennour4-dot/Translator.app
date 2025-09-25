@@ -15,17 +15,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Setup Node.js + pnpm
+      # 2. Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'pnpm'
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      # 3. Setup pnpm (fixes your PATH error)
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
 
-      # 3. Install project dependencies + Capacitor packages
+      # 4. Install project + Capacitor deps
       - name: Install dependencies
         run: |
           pnpm install
@@ -33,11 +36,11 @@ jobs:
           pnpm add @capacitor/core
           pnpm add @capacitor/android
 
-      # 4. Add Android platform (ignore if already exists)
+      # 5. Add Android platform (ignore if exists)
       - name: Add Capacitor Android
         run: pnpm exec cap add android || echo "Android already added"
 
-      # 5. Setup JDK + Android SDK
+      # 6. Setup JDK + Android SDK
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -47,13 +50,13 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # 6. Build APK
+      # 7. Build APK
       - name: Build APK
         run: |
           cd android
           ./gradlew assembleDebug
 
-      # 7. Upload APK artifact
+      # 8. Upload APK artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
