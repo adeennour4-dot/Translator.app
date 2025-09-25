@@ -35,8 +35,11 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          # UPDATE THE JAVA VERSION HERE
           java-version: '21'
+
+      # THIS IS THE NEW STEP THAT FIXES THE SIGNING ERROR
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
       - name: Add Android Platform
         run: pnpm exec cap add android
@@ -52,7 +55,7 @@ jobs:
 
       - name: Build Release APK
         working-directory: android
-        run: ./gradlew assembleRelease
+        run: ./gradlew --no-daemon assembleRelease
 
       - name: Sign Release APK
         uses: r0adkll/sign-android-release@v1
