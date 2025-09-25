@@ -25,14 +25,14 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 9 # use latest stable or project-required version
+          version: 9 # or your project-required version
 
-      # Configure PNPM global bin directory
-      - name: Setup PNPM global bin
+      # Setup pnpm global bin
+      - name: Setup PNPM
         run: |
-          echo "PNPM_HOME=$HOME/.pnpm" >> $GITHUB_ENV
-          echo "$HOME/.pnpm" >> $GITHUB_PATH
-          mkdir -p $HOME/.pnpm
+          pnpm setup
+          echo "PNPM_HOME=$HOME/.local/share/pnpm" >> $GITHUB_ENV
+          echo "$HOME/.local/share/pnpm" >> $GITHUB_PATH
 
       # Install TypeScript globally
       - name: Install TypeScript globally
