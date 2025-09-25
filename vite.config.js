@@ -1,40 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
-import { fileURLToPath } from 'url' // <-- Add this import
+import { fileURLToPath } from 'url'
 
-// https://vitejs.dev/config/
+// __dirname replacement for ESM
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
 export default defineConfig({
-  // --- FIX: Set the base to relative paths for Capacitor --- 
-  base: './',
-
-  plugins: [react(), tailwindcss()],
+  plugins: [react()],
   resolve: {
     alias: {
-      // --- FIX: Correctly resolve path alias for ESM compatibility --- 
-      "@": path.resolve(fileURLToPath(import.meta.url), "../src"),
+      '@': path.resolve(__dirname, 'src'),
     },
   },
+  base: './', // required for Capacitor offline bundle
   build: {
-    rollupOptions: {
-      external: [
-        // Mark Capacitor plugins as external so Rollup doesn't try to bundle them
-        '@capacitor/app',
-        '@capacitor/haptics',
-        '@capacitor/keyboard',
-        '@capacitor/status-bar',
-        '@capacitor/filesystem',
-      ],
-    },
-  },
-  optimizeDeps: {
-    exclude: [
-      '@capacitor/app',
-      '@capacitor/haptics',
-      '@capacitor/keyboard',
-      '@capacitor/status-bar',
-      '@capacitor/filesystem',
-    ],
+    outDir: 'dist',
   },
 })
