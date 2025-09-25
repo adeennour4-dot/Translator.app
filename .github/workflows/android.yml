@@ -17,7 +17,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10.4.1 # <-- FIXED VERSION
+          version: 10.4.1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -40,16 +40,23 @@ jobs:
       - name: Sync Capacitor project
         run: pnpm exec cap sync android
 
-      - name: Build Android project
+      - name: Build Release APK
         working-directory: android
-        run: ./gradlew build
+        # This command builds the unsigned release APK
+        run: ./gradlew assembleRelease
 
-      - name: Assemble Debug APK
-        working-directory: android
-        run: ./gradlew assembleDebug
+      - name: Sign Release APK
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: android/app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
+          alias: ${{ secrets.KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Translator.app-debug.apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Translator.app-release-signed.apk
+          # The signed APK is always named app-release-signed.apk by the signing action
+          path: android/app/build/outputs/apk/release/app-release-signed.apk
