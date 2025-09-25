@@ -14,35 +14,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Install pnpm first (important: before setup-node cache step)
+      # Install pnpm
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 9
 
-      # Setup Node.js (with pnpm cache enabled)
+      # Setup Node.js (with pnpm cache)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'pnpm'
 
-      # Setup pnpm global bin
-      - name: Setup PNPM
-        run: |
-          pnpm setup
-          echo "PNPM_HOME=$HOME/.local/share/pnpm" >> $GITHUB_ENV
-          echo "$HOME/.local/share/pnpm" >> $GITHUB_PATH
-
-      # Install TypeScript globally (optional if in devDeps)
-      - name: Install TypeScript globally
-        run: pnpm add -g typescript
-
-      # Install project dependencies
+      # Install project dependencies (includes TypeScript if in devDependencies)
       - name: Install dependencies
         run: pnpm install
 
-      # Add Capacitor Android platform (only if not in repo already)
+      # Add Capacitor Android platform (only if not already committed in repo)
       - name: Add Capacitor Android
         run: |
           pnpm add @capacitor/android
