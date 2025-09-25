@@ -39,7 +39,7 @@ jobs:
           echo "$(pnpm bin)" >> $GITHUB_PATH
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile || pnpm install  # Fallback if no lockfile yet
+        run: pnpm install --frozen-lockfile || pnpm install
 
       - name: Install Capacitor CLI and TypeScript locally
         run: pnpm add -D @capacitor/cli typescript
@@ -48,7 +48,7 @@ jobs:
         run: pnpm add @capacitor/core @capacitor/android
 
       - name: Build web app
-        run: pnpm run build || echo "No build script found, skipping"  # Adjust or remove if not needed
+        run: pnpm run build || echo "No build script found or build failed, proceeding anyway if assets exist"
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -62,7 +62,7 @@ jobs:
       - name: Initialize Capacitor if needed
         run: |
           if [ ! -f "capacitor.config.json" ] && [ ! -f "capacitor.config.ts" ]; then
-            pnpm exec cap init --web-dir dist  # Adjust --web-dir to your build output dir, e.g., 'build' or 'www'
+            pnpm exec cap init com.example.translator dist  # Replace 'com.example.translator' with your appId and 'dist' with your webDir if different
           else
             echo "Capacitor config already exists"
           fi
