@@ -1,189 +1,74 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-// The unused 'import { jsPDF } from 'jspdf'' has been removed.
+import download from 'downloadjs';
 
-export class PDFGenerator {
-  constructor() {
-    this.pageWidth = 595.28; // A4 width in points
-    this.pageHeight = 841.89; // A4 height in points
-    this.margin = 50;
-  }
-
-  async generateTranslationPDF(originalFile, extractedPages, translatedPages) {
+class PDFGenerator {
+  async generateTranslationPDF(originalFile, translatedPages) {
     try {
-      // Create a new PDF document
       const pdfDoc = await PDFDocument.create();
       
-      // Load fonts
-      const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
-      const helveticaBoldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-      const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+      // --- FONT LOADING FIX ---
+      // 1. Fetch the custom font file that supports Arabic
+      const fontResponse = await fetch('/fonts/NotoSansArabic-Regular.ttf');
+      if (!fontResponse.ok) throw new Error("Font file not found.");
+      const fontBytes = await fontResponse.arrayBuffer();
 
-      // Load original PDF for reference
+      // 2. Embed the custom font into the PDF document
+      const customFont = await pdfDoc.embedFont(fontBytes);
+      // --- END OF FIX ---
+
+      // Load original PDF to copy pages from it
       const originalPdfBytes = await originalFile.arrayBuffer();
       const originalPdf = await PDFDocument.load(originalPdfBytes);
-      const originalPages = originalPdf.getPages();
 
-      const totalPages = Math.max(extractedPages.length, translatedPages.length);
-      
-      // Phase 1: Original and Translation pages alternating
-      for (let i = 0; i < totalPages; i++) {
-        if (i < originalPages.length) {
+      for (let i = 0; i < translatedPages.length; i++) {
+        // Add original page
+        if (i < originalPdf.getPageCount()) {
           const [copiedPage] = await pdfDoc.copyPages(originalPdf, [i]);
           pdfDoc.addPage(copiedPage);
         }
         
-        if (i < translatedPages.length) {
-          const translationPage = await this.createTranslationPage(
-            pdfDoc,
-            extractedPages[i],
-            translatedPages[i],
-            helveticaFont,
-            helveticaBoldFont,
-            i + 1
-          );
-          pdfDoc.addPage(translationPage);
+        // Add a new page for our translation
+        const page = pdfDoc.addPage();
+        const { width, height } = page.getSize();
+        
+        page.drawText(`Translation - Page ${i + 1}`, {
+          x: 50,
+          y: height - 60,
+          font: await pdfDoc.embedFont(StandardFonts.HelveticaBold), // Use a standard font for headers
+          size: 18,
+          color: rgb(0.1, 0.1, 0.1),
+        });
+
+        const translatedPage = translatedPages[i];
+        let yPosition = height - 100;
+
+        // 3. Use the embedded custom font to draw the translated text
+        for (const item of translatedPage.textItems) {
+            if (yPosition < 50) break; // Stop if we run out of space
+            
+            page.drawText(item.translatedText, {
+              x: 50,
+              y: yPosition,
+              font: customFont, // Use the special font here!
+              size: 12,
+              color: rgb(0, 0, 0),
+              lineHeight: 18,
+              maxWidth: width - 100,
+            });
+            yPosition -= (item.translatedText.split('\n').length * 18);
         }
       }
 
-      // Phase 2: Word-to-word mapping pages
-      for (let i = 0; i < translatedPages.length; i++) {
-        const mappingPage = await this.createWordMappingPage(
-          pdfDoc,
-          translatedPages[i],
-          helveticaFont,
-          helveticaBoldFont,
-          timesRomanFont,
-          i + 1
-        );
-        pdfDoc.addPage(mappingPage);
-      }
-
-      const pdfBytes = await pdfDoc.save();
-      return pdfBytes;
+      return await pdfDoc.save();
       
     } catch (error) {
       console.error('Error generating PDF:', error);
       throw new Error(`PDF generation failed: ${error.message}`);
     }
   }
-
-  // ... the rest of the file is perfect and remains unchanged ...
-  // (createTranslationPage, createWordMappingPage, parseColor, wrapText, downloadPDF)
-
-  async createTranslationPage(pdfDoc, originalPage, translatedPage, font, boldFont, pageNumber) {
-    const page = pdfDoc.addPage([this.pageWidth, this.pageHeight]);
-    const { width, height } = page.getSize();
-    page.drawText(`Translation - Page ${pageNumber}`, { x: this.margin, y: height - this.margin, size: 16, font: boldFont, color: rgb(0.2, 0.2, 0.8) });
-    page.drawLine({ start: { x: this.margin, y: height - this.margin - 25 }, end: { x: width - this.margin, y: height - this.margin - 25 }, thickness: 1, color: rgb(0.7, 0.7, 0.7) });
-    let currentY = height - this.margin - 50;
-    if (translatedPage.translatedTextItems && translatedPage.translatedTextItems.length > 0) {
-      for (const textItem of translatedPage.translatedTextItems) {
-        if (currentY < this.margin + 50) break;
-        const relativeX = this.margin + (textItem.x || 0) * 0.5;
-        const relativeY = currentY - (textItem.y || 0) * 0.1;
-        const fontSize = Math.max(8, Math.min(14, textItem.fontSize || 12));
-        const textColor = this.parseColor(textItem.color) || rgb(0, 0, 0);
-        try {
-          page.drawText(textItem.text || '', { x: Math.max(this.margin, Math.min(relativeX, width - this.margin - 100)), y: Math.max(this.margin, relativeY), size: fontSize, font: font, color: textColor, maxWidth: width - 2 * this.margin });
-        } catch (error) { console.warn('Text rendering error:', error); }
-        currentY -= fontSize + 5;
-      }
-    } else {
-      const translatedText = translatedPage.translatedText || 'No translation available';
-      const lines = this.wrapText(translatedText, font, 12, width - 2 * this.margin);
-      for (const line of lines) {
-        if (currentY < this.margin + 20) break;
-        page.drawText(line, { x: this.margin, y: currentY, size: 12, font: font, color: rgb(0, 0, 0) });
-        currentY -= 18;
-      }
-    }
-    page.drawText(`Translated with Advanced Translation Studio`, { x: this.margin, y: this.margin - 20, size: 8, font: font, color: rgb(0.5, 0.5, 0.5) });
-    return page;
-  }
-
-  async createWordMappingPage(pdfDoc, translatedPage, font, boldFont, monoFont, pageNumber) {
-    const page = pdfDoc.addPage([this.pageWidth, this.pageHeight]);
-    const { width, height } = page.getSize();
-    page.drawText(`Word-to-Word Mapping - Page ${pageNumber}`, { x: this.margin, y: height - this.margin, size: 16, font: boldFont, color: rgb(0.8, 0.2, 0.2) });
-    page.drawLine({ start: { x: this.margin, y: height - this.margin - 25 }, end: { x: width - this.margin, y: height - this.margin - 25 }, thickness: 1, color: rgb(0.7, 0.7, 0.7) });
-    let currentY = height - this.margin - 50;
-    const columnWidth = (width - 2 * this.margin) / 3;
-    page.drawText('Original', { x: this.margin, y: currentY, size: 12, font: boldFont, color: rgb(0, 0, 0) });
-    page.drawText('Translation', { x: this.margin + columnWidth, y: currentY, size: 12, font: boldFont, color: rgb(0, 0, 0) });
-    page.drawText('Confidence', { x: this.margin + 2 * columnWidth, y: currentY, size: 12, font: boldFont, color: rgb(0, 0, 0) });
-    page.drawLine({ start: { x: this.margin, y: currentY - 5 }, end: { x: width - this.margin, y: currentY - 5 }, thickness: 1, color: rgb(0.3, 0.3, 0.3) });
-    currentY -= 25;
-    if (translatedPage.wordMappings && translatedPage.wordMappings.length > 0) {
-      for (const mapping of translatedPage.wordMappings) {
-        if (currentY < this.margin + 30) break;
-        page.drawText(mapping.original || '', { x: this.margin, y: currentY, size: 10, font: font, color: rgb(0, 0, 0), maxWidth: columnWidth - 10 });
-        page.drawText(mapping.translated || '', { x: this.margin + columnWidth, y: currentY, size: 10, font: font, color: rgb(0, 0, 0.8), maxWidth: columnWidth - 10 });
-        const confidence = Math.round((mapping.confidence || 0) * 100);
-        const confidenceColor = confidence > 80 ? rgb(0, 0.6, 0) : confidence > 60 ? rgb(0.8, 0.6, 0) : rgb(0.8, 0, 0);
-        page.drawText(`${confidence}%`, { x: this.margin + 2 * columnWidth, y: currentY, size: 10, font: monoFont, color: confidenceColor });
-        currentY -= 15;
-      }
-    }
-    page.drawText(`Generated on ${new Date().toLocaleDateString()}`, { x: this.margin, y: this.margin - 20, size: 8, font: font, color: rgb(0.5, 0.5, 0.5) });
-    return page;
-  }
-
-  parseColor(colorString) {
-    if (!colorString) return null;
-    if (colorString.startsWith('#')) {
-      const hex = colorString.slice(1);
-      if (hex.length === 6) {
-        const r = parseInt(hex.slice(0, 2), 16) / 255;
-        const g = parseInt(hex.slice(2, 4), 16) / 255;
-        const b = parseInt(hex.slice(4, 6), 16) / 255;
-        return rgb(r, g, b);
-      }
-    }
-    const rgbMatch = colorString.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-    if (rgbMatch) {
-      const r = parseInt(rgbMatch[1]) / 255;
-      const g = parseInt(rgbMatch[2]) / 255;
-      const b = parseInt(rgbMatch[3]) / 255;
-      return rgb(r, g, b);
-    }
-    return rgb(0, 0, 0);
-  }
-
-  wrapText(text, font, fontSize, maxWidth) {
-    const words = text.split(' ');
-    const lines = [];
-    let currentLine = '';
-    for (const word of words) {
-      const testLine = currentLine ? `${currentLine} ${word}` : word;
-      const testWidth = font.widthOfTextAtSize(testLine, fontSize);
-      if (testWidth <= maxWidth) {
-        currentLine = testLine;
-      } else {
-        if (currentLine) {
-          lines.push(currentLine);
-          currentLine = word;
-        } else {
-          lines.push(word);
-          currentLine = '';
-        }
-      }
-    }
-    if (currentLine) {
-      lines.push(currentLine);
-    }
-    return lines;
-  }
-
-  async downloadPDF(pdfBytes, filename = 'translation-output.pdf') {
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  
+  async downloadPDF(pdfBytes, filename) {
+    download(pdfBytes, filename, 'application/pdf');
   }
 }
 
