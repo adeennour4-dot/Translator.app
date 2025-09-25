@@ -11,44 +11,51 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Install pnpm
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 9
-
-      # Setup Node.js (with pnpm cache)
+      # 2. Setup Node + pnpm
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: 'pnpm'
+          cache: "pnpm"
 
-      # Install project dependencies (includes @capacitor/cli as devDep)
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      # 3. Install project dependencies
       - name: Install dependencies
         run: pnpm install
 
-      # Setup JDK
-      - name: Setup JDK
+      # 4. Install Capacitor Android platform
+      - name: Install Capacitor Android
+        run: pnpm add @capacitor/android@latest
+
+      # 5. Add Android platform
+      - name: Add Android platform
+        run: pnpm exec cap add android
+
+      # 6. Setup JDK + Android SDK
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: 17
 
-      # Setup Android SDK
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # Build APK
+      # 7. Build APK
       - name: Build APK
-        run: ./gradlew assembleDebug
+        run: |
+          cd android
+          ./gradlew assembleDebug
 
-      # Upload APK artifact
+      # 8. Upload APK as artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: app-debug.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
