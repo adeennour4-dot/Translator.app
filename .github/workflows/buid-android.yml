@@ -37,7 +37,6 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      # THIS IS THE NEW STEP THAT FIXES THE SIGNING ERROR
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
@@ -47,27 +46,19 @@ jobs:
       - name: Sync Capacitor project
         run: pnpm exec cap sync android
         
-      - name: Patch Gradle Configuration
-        run: |
-          cd android
-          sed -i "s/androidxAppCompatVersion = '.*'/androidxAppCompatVersion = '1.6.1'/" variables.gradle
-          cd ..
+      - name: Decode Keystore
+        # This step decodes the base64 secret into a keystore file for Gradle
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/release.keystore
 
-      - name: Build Release APK
+      - name: Build and Sign Release APK
         working-directory: android
-        run: ./gradlew --no-daemon assembleRelease
-
-      - name: Sign Release APK
-        uses: r0adkll/sign-android-release@v1
-        with:
-          releaseDirectory: android/app/build/outputs/apk/release
-          signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
-          alias: ${{ secrets.KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
+        # This single command builds the app and signs it using your secrets
+        run: ./gradlew assembleRelease -Pandroid.injected.signing.store.file=$(pwd)/release.keystore -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Translator.app-release-signed.apk
-          path: android/app/build/outputs/apk/release/app-release-signed.apk
+          name: Translator.app-release.apk
+          # The path for the official signed APK is different
+          path: android/app/build/outputs/apk/release/app-release.apk
+
