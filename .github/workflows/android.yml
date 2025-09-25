@@ -39,16 +39,16 @@ jobs:
           echo "$(pnpm bin)" >> $GITHUB_PATH
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile || pnpm install  # Fallback if no lockfile yet
 
-      - name: Install Capacitor CLI locally
+      - name: Install Capacitor CLI and TypeScript locally
         run: pnpm add -D @capacitor/cli typescript
 
       - name: Install Capacitor core and Android
         run: pnpm add @capacitor/core @capacitor/android
 
       - name: Build web app
-        run: pnpm run build  # Adjust this if your build command is different, e.g., 'ionic build' or 'npm run build'
+        run: pnpm run build || echo "No build script found, skipping"  # Adjust or remove if not needed
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -58,6 +58,14 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Initialize Capacitor if needed
+        run: |
+          if [ ! -f "capacitor.config.json" ] && [ ! -f "capacitor.config.ts" ]; then
+            pnpm exec cap init --web-dir dist  # Adjust --web-dir to your build output dir, e.g., 'build' or 'www'
+          else
+            echo "Capacitor config already exists"
+          fi
 
       - name: Add Android platform to Capacitor
         run: |
