@@ -4,54 +4,64 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  pull_request:
 
 jobs:
-  build_apk:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 18
+          cache: 'pnpm'
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      # Setup pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
 
+      # Configure PNPM global bin directory
+      - name: Setup PNPM global bin
+        run: |
+          echo "PNPM_HOME=$HOME/.pnpm" >> $GITHUB_ENV
+          echo "$HOME/.pnpm" >> $GITHUB_PATH
+          mkdir -p $HOME/.pnpm
+
+      # Install TypeScript globally
+      - name: Install TypeScript globally
+        run: pnpm add -g typescript
+
+      # Install project dependencies
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build web app
-        run: pnpm run build
-
-      - name: Setup Java
+      # Setup JDK
+      - name: Setup JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
+      # Setup Android SDK
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Add Android platform to Capacitor
-        run: npx cap add android
+      # Build APK
+      - name: Build APK
+        run: ./gradlew assembleDebug
 
-      - name: Copy web assets to Android project
-        run: npx cap copy android
-
-      - name: Build Android project
-        run: cd android && ./gradlew assembleDebug
-        working-directory: ./android
-
-      - name: Upload APK artifact
+      # Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-
+          name: app-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
 
 
