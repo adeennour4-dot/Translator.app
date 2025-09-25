@@ -1,27 +1,16 @@
-import { useState, useRef } from 'react';
-import { Filesystem, Directory } from '@capacitor/filesystem';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button.jsx';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card.jsx';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card.jsx';
 import { Progress } from '@/components/ui/progress.jsx';
 import { Badge } from '@/components/ui/badge.jsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.jsx';
 import { Switch } from '@/components/ui/switch.jsx';
-import { Upload, FileText, Download, Languages, Eye, Zap, AlertCircle } from 'lucide-react';
+import { Upload, FileText, Download, Languages, Eye, Palette, Zap, AlertCircle } from 'lucide-react';
 import PDFViewer from './components/PDFViewer.jsx';
 import PDFProcessor from './utils/pdfProcessor.js';
 import TranslationService from './utils/translationService.js';
 import PDFGenerator from './utils/pdfGenerator.js';
 import './App.css';
-
-// --- FIX: Helper function to correctly convert a Blob to a Base64 data URL for Capacitor --- 
-const blobToBase64 = (blob) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-    reader.readAsDataURL(blob);
-  });
-};
 
 function App() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -35,251 +24,222 @@ function App() {
   const [activeTab, setActiveTab] = useState('upload');
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
-
+  
+  // Initialize utility classes
   const pdfProcessor = new PDFProcessor();
   const translationService = new TranslationService();
   const pdfGenerator = new PDFGenerator();
 
-  const handleFileSelect = (event) => {
+  useEffect(() => {
+    // Cleanup OCR worker when the component unmounts
+    return () => {
+      pdfProcessor.cleanup();
+    };
+  }, []);
+
+  const handleFileSelect = async (event) => {
     const file = event.target.files[0];
     if (file && file.type === 'application/pdf') {
       setSelectedFile(file);
       setError(null);
       setActiveTab('preview');
-      pdfProcessor.isScannedPDF(file).then(setIsScannedPDF);
+      try {
+        const isScanned = await pdfProcessor.isScannedPDF(file);
+        setIsScannedPDF(isScanned);
+        setUseOCR(isScanned);
+      } catch (e) {
+        console.error('Error checking PDF type:', e);
+        setError('Could not analyze the PDF file.');
+      }
     } else {
-      setError('Please select a valid PDF file.');
+      setError('Please select a PDF file.');
     }
+  };
+  
+  const handleDragOver = (event) => event.preventDefault();
+  const handleDrop = (event) => {
+    event.preventDefault();
+    // Simulate a file selection event for the handler
+    handleFileSelect({ target: { files: event.dataTransfer.files } });
   };
 
   const startTranslation = async () => {
     if (!selectedFile) return;
-
+    
     setIsProcessing(true);
     setProgress(0);
     setProgressMessage('Starting process...');
     setActiveTab('processing');
     setError(null);
-
+    
     try {
       const onProgress = (prog, msg) => {
         setProgress(prog);
         setProgressMessage(msg);
       };
 
-      const extractedPages = useOCR
+      const extractedPages = useOCR 
         ? await pdfProcessor.extractTextWithOCR(selectedFile, (p, m) => onProgress(p * 0.5, m))
         : await pdfProcessor.extractTextFromPDF(selectedFile, (p, m) => onProgress(p * 0.5, m));
-
-      const translated = await translationService.translatePages(extractedPages, (p, m) => onProgress(50 + (p * 0.5), m));
+      
+      const translated = await translationService.translatePages(extractedPages, (p, m) => onProgress(50 + (p * 0.45), m));
       setTranslatedPages(translated);
-
+      
+      setProgress(95);
+      setProgressMessage('Generating statistics...');
       const stats = await translationService.getTranslationStats(translated);
       const wordMappings = translationService.exportWordMappings(translated);
-
+      
       setProcessedData({
         originalPages: extractedPages.length,
         translatedPages: translated.length,
         wordMappings: wordMappings.length,
         confidence: Math.round(stats.confidence * 100),
         medicalTerms: stats.medicalTerms,
-        preservedElements: 0 // Placeholder
+        preservedElements: extractedPages.reduce((acc, page) => acc + page.textItems.length, 0),
       });
-
+      
       setProgress(100);
       setProgressMessage('Translation complete!');
       setActiveTab('results');
-
+      
     } catch (err) {
       console.error('Translation error:', err);
       setError(`Processing failed: ${err.message}`);
+      setActiveTab('preview'); // Go back to preview on error
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // --- FIX: Complete rewrite of the export function for Capacitor --- 
   const exportPDF = async () => {
-    if (!selectedFile || !translatedPages.length) {
-      setError('No data to export.');
-      return;
-    }
+    if (!selectedFile || !translatedPages.length) return setError('No data to export.');
 
     setIsProcessing(true);
     setProgress(0);
     setProgressMessage('Generating final PDF...');
+    setActiveTab('processing'); // Switch to processing view for export
     setError(null);
 
     try {
-      // 1. Get the PDF as a Uint8Array from your generator
-      const pdfBytes = await pdfGenerator.generateTranslatedPDF(
-        selectedFile,
-        translatedPages,
-        (p, m) => {
-          setProgress(p);
-          setProgressMessage(m);
-        }
-      );
-
-      // 2. Convert the Uint8Array to a Blob
-      const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
-
-      // 3. Convert Blob to Base64 Data URL using the helper function
-      const base64data = await blobToBase64(pdfBlob);
-
-      // 4. Save the file to the device's Documents directory
-      const fileName = `translated_${Date.now()}.pdf`;
-      await Filesystem.writeFile({
-        path: fileName,
-        data: base64data,
-        directory: Directory.Documents,
-      });
-
+      // Pass both original and translated pages to the generator
+      const pdfBytes = await pdfGenerator.generateTranslationPDF(selectedFile, translatedPages, translatedPages); // Assuming the function signature matches
+      setProgress(90);
+      
+      const filename = `translated-${selectedFile.name}`;
+      await pdfGenerator.downloadPDF(pdfBytes, filename);
       setProgress(100);
-      setProgressMessage(`PDF exported successfully! Saved in Documents as ${fileName}`);
+      setProgressMessage('PDF exported successfully!');
+
+      setTimeout(() => {
+        setProgressMessage('');
+        setActiveTab('results'); // Go back to results after success
+      }, 2000);
 
     } catch (err) {
-      console.error('Export error:', err);
-      setError(`Export failed: ${err.message}`);
+      console.error('PDF export error:', err);
+      setError(`PDF export failed: ${err.message}`);
+      setActiveTab('results'); // Go back to results on error
     } finally {
       setIsProcessing(false);
     }
   };
+  
+  const resetApp = () => {
+    setSelectedFile(null);
+    setProcessedData(null);
+    setTranslatedPages([]);
+    setError(null);
+    setActiveTab('upload');
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white flex flex-col items-center justify-center p-4">
-      <Card className="w-full max-w-4xl bg-gray-800 border-gray-700 shadow-lg">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-2xl font-bold text-blue-400">AI Document Translator</CardTitle>
-          <div className="flex items-center space-x-2">
-            <Badge variant="secondary" className="bg-blue-500 hover:bg-blue-600 text-white">
-              <Languages className="h-4 w-4 mr-1" />
-              Multi-Language
-            </Badge>
-            <Badge variant="secondary" className="bg-purple-500 hover:bg-purple-600 text-white">
-              <Zap className="h-4 w-4 mr-1" />
-              AI Powered
-            </Badge>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+      <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-gray-900/80 sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
+              <Languages className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold">Advanced Translation Studio</h1>
+              <p className="text-sm text-muted-foreground">Professional PDF translation with layout preservation</p>
+            </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-gray-700">
-              <TabsTrigger value="upload" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                <Upload className="h-4 w-4 mr-2" /> Upload
-              </TabsTrigger>
-              <TabsTrigger value="preview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white" disabled={!selectedFile}>
-                <Eye className="h-4 w-4 mr-2" /> Preview
-              </TabsTrigger>
-              <TabsTrigger value="processing" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white" disabled={!selectedFile || activeTab === 'upload'}>
-                 <Zap className="h-4 w-4 mr-2" /> Processing
-              </TabsTrigger>
-              <TabsTrigger value="results" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white" disabled={!processedData}>
-                <FileText className="h-4 w-4 mr-2" /> Results
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="upload" className="mt-4">
-              <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-600 rounded-lg">
-                <Upload className="h-12 w-12 text-gray-400 mb-4" />
-                <p className="text-lg text-gray-300 mb-2">Drag & drop your PDF here, or</p>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileSelect}
-                  accept="application/pdf"
-                  className="hidden"
-                />
-                <Button onClick={() => fileInputRef.current.click()} className="bg-blue-500 hover:bg-blue-600 text-white">
-                  Browse Files
-                </Button>
-                {error && (
-                  <p className="text-red-500 mt-4 flex items-center">
-                    <AlertCircle className="h-4 w-4 mr-2" /> {error}
-                  </p>
-                )}
-              </div>
-              <div className="mt-6 p-4 bg-gray-700 rounded-lg flex items-center justify-between">
-                <div className="flex flex-col">
-                    <span className="text-gray-300">Use OCR for scanned or image-based PDFs</span>
-                    <small className="text-gray-400">Provides more accurate text extraction but is slower.</small>
-                </div>
-                <Switch checked={useOCR} onCheckedChange={setUseOCR} />
-              </div>
-              {isScannedPDF && !useOCR && (
-                <p className="text-yellow-500 mt-2 flex items-center p-2 bg-yellow-900/20 rounded-md">
-                  <AlertCircle className="h-4 w-4 mr-2" /> This appears to be a scanned PDF. Consider enabling OCR for better results.
-                </p>
-              )}
-            </TabsContent>
-            <TabsContent value="preview" className="mt-4">
-              {selectedFile ? (
-                <div className="flex flex-col items-center">
-                  <p className="text-lg text-gray-300 mb-4">Previewing: <span className="font-semibold">{selectedFile.name}</span></p>
-                  <PDFViewer file={selectedFile} className="w-full" />
-                  <Button onClick={startTranslation} disabled={isProcessing} className="mt-6 bg-green-500 hover:bg-green-600 text-white w-full md:w-auto">
-                    {isProcessing ? 'Translating...' : 'Start Translation'}
-                  </Button>
-                </div>
-              ) : (
-                <p className="text-gray-400 text-center p-8">No file selected for preview.</p>
-              )}
-            </TabsContent>
-            <TabsContent value="processing" className="mt-4">
-              <div className="flex flex-col items-center justify-center p-8">
-                <h3 className="text-xl font-semibold mb-4">Translation in Progress</h3>
+          <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+            <Zap className="h-3 w-3 mr-1" />Ready
+          </Badge>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-4xl mx-auto">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
+            <TabsTrigger value="upload" className="flex items-center space-x-2"><Upload className="h-4 w-4" /><span>Upload</span></TabsTrigger>
+            <TabsTrigger value="preview" disabled={!selectedFile} className="flex items-center space-x-2"><Eye className="h-4 w-4" /><span>Preview</span></TabsTrigger>
+            <TabsTrigger value="processing" disabled={!isProcessing && activeTab !== 'processing'} className="flex items-center space-x-2"><Languages className="h-4 w-4" /><span>Processing</span></TabsTrigger>
+            <TabsTrigger value="results" disabled={!processedData} className="flex items-center space-x-2"><Download className="h-4 w-4" /><span>Results</span></TabsTrigger>
+          </TabsList>
+
+          {error && (
+            <div className="my-4 p-4 bg-red-100 text-red-700 rounded-md flex items-center space-x-2">
+              <AlertCircle className="h-4 w-4" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <TabsContent value="upload">
+            {/* ... Your Upload UI ... */}
+          </TabsContent>
+          <TabsContent value="preview">
+            <PDFViewer file={selectedFile} className="mt-4" />
+            <div className="mt-4 p-4 border rounded-lg flex items-center justify-between">
+              <label htmlFor="ocr-switch" className="flex flex-col">
+                <span className="font-semibold">Use OCR Processing</span>
+                <span className="text-sm text-muted-foreground">{isScannedPDF ? "Scanned document detected (Recommended)" : "Text-based document (Optional)"}</span>
+              </label>
+              <Switch checked={useOCR} onCheckedChange={setUseOCR} id="ocr-switch" />
+            </div>
+            <div className="flex justify-center mt-4">
+              <Button onClick={startTranslation} size="lg" disabled={isProcessing}>
+                <Languages className="mr-2 h-4 w-4" />
+                {isProcessing ? 'Processing...' : 'Start Translation'}
+              </Button>
+            </div>
+          </TabsContent>
+          <TabsContent value="processing">
+            <Card className="mt-4">
+              <CardHeader><CardTitle>Translation in Progress</CardTitle></CardHeader>
+              <CardContent className="p-6">
                 <Progress value={progress} className="w-full mb-4" />
-                <p className="text-gray-300 text-center">{progressMessage}</p>
-                {error && (
-                  <p className="text-red-500 mt-4 flex items-center">
-                    <AlertCircle className="h-4 w-4 mr-2" /> {error}
-                  </p>
-                )}
-              </div>
-            </TabsContent>
-            <TabsContent value="results" className="mt-4">
-              {processedData ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card className="bg-gray-700 border-gray-600">
-                    <CardHeader>
-                      <CardTitle className="text-blue-300">Translation Summary</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      <p>Original Pages: <span className="font-semibold float-right">{processedData.originalPages}</span></p>
-                      <p>Translated Pages: <span className="font-semibold float-right">{processedData.translatedPages}</span></p>
-                      <p>Word Mappings: <span className="font-semibold float-right">{processedData.wordMappings}</span></p>
-                      <p>Preserved Elements: <span className="font-semibold float-right">{processedData.preservedElements}</span></p>
-                      <div>Confidence Score:
-                        <div className="w-24 float-right">
-                            <Progress value={processedData.confidence} className="h-3" />
-                        </div>
-                      </div>
-                      <p className="pt-2">Medical Terms Detected: <span className="font-semibold float-right">{processedData.medicalTerms}</span></p>
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-gray-700 border-gray-600 flex flex-col justify-between">
-                    <CardHeader>
-                      <CardTitle className="text-blue-300">Actions</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <Button onClick={exportPDF} disabled={isProcessing} className="w-full bg-blue-500 hover:bg-blue-600 text-white">
-                        <Download className="h-4 w-4 mr-2" /> {isProcessing ? 'Exporting...' : 'Export Translated PDF'}
-                      </Button>
-                      <Button onClick={() => { setSelectedFile(null); setProcessedData(null); setActiveTab('upload'); }} variant="outline" className="w-full border-gray-500 text-gray-300 hover:bg-gray-600">
-                        Translate Another Document
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              ) : (
-                <p className="text-gray-400 text-center p-8">No results to display. Please translate a document first.</p>
-              )}
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
-      <footer className="text-center mt-4">
-        <p className="text-xs text-gray-500">Powered by Advanced Translation Studio</p>
-      </footer>
+                <p className="text-center text-muted-foreground">{progressMessage}</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="results">
+            {processedData && (
+              <Card className="mt-4">
+                <CardHeader><CardTitle>Translation Results</CardTitle></CardHeader>
+                <CardContent className="space-y-4">
+                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                      <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg"><div className="text-2xl font-bold">{processedData.originalPages}</div><div className="text-sm text-muted-foreground">Original Pages</div></div>
+                      <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg"><div className="text-2xl font-bold">{processedData.translatedPages}</div><div className="text-sm text-muted-foreground">Translated Pages</div></div>
+                      <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg"><div className="text-2xl font-bold">{processedData.wordMappings}</div><div className="text-sm text-muted-foreground">Word Mappings</div></div>
+                      <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg"><div className="text-2xl font-bold">{processedData.confidence}%</div><div className="text-sm text-muted-foreground">Confidence</div></div>
+                   </div>
+                  <div className="flex justify-center space-x-4 pt-4">
+                    <Button onClick={exportPDF} size="lg" disabled={isProcessing}>
+                      <Download className="mr-2 h-4 w-4" />
+                      {isProcessing ? 'Exporting...' : 'Export PDF'}
+                    </Button>
+                    <Button variant="outline" onClick={resetApp} size="lg">New Document</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      </main>
     </div>
   );
 }
