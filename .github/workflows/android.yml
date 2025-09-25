@@ -1,5 +1,3 @@
-# Full workflow code for .github/workflows/build-android.yml
-
 name: Build Android APK
 
 on:
@@ -19,7 +17,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 10.4.1 # <-- FIXED VERSION
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -40,8 +38,6 @@ jobs:
           java-version: '17'
 
       - name: Sync Capacitor project
-        # This command updates the native project with your web app changes.
-        # It will also add the android platform if it doesn't exist.
         run: pnpm exec cap sync android
 
       - name: Build Android project
