@@ -37,13 +37,25 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Install Capacitor CLI locally
+        run: pnpm add @capacitor/cli
+
+      - name: Add pnpm local bin to PATH
+        run: echo "$(pwd)/node_modules/.bin" >> $GITHUB_PATH
+
       - name: Add Android platform to Capacitor
-        run: npx cap add android
+        run: pnpm exec cap add android
 
       - name: Copy web assets to Android project
-        run: npx cap copy android
+        run: pnpm exec cap copy android
+
+      - name: Sync Capacitor project
+        run: pnpm exec cap sync android
 
       - name: Build Android project
+        run: pnpm exec cap build android --prod
+
+      - name: Assemble Debug APK
         run: cd android && ./gradlew assembleDebug
         working-directory: ./android
 
