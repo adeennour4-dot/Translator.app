@@ -22,16 +22,17 @@ jobs:
           node-version: 18
           cache: 'pnpm'
 
-      # 3. Setup pnpm (fixes your PATH error)
+      # 3. Setup pnpm
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      # 4. Install project + Capacitor deps
+      # 4. Install project + Capacitor + TypeScript deps
       - name: Install dependencies
         run: |
           pnpm install
+          pnpm add -D typescript
           pnpm add -D @capacitor/cli
           pnpm add @capacitor/core
           pnpm add @capacitor/android
