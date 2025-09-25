@@ -1,3 +1,5 @@
+# Full workflow code for .github/workflows/build-android.yml
+
 name: Build Android APK
 
 on:
@@ -25,61 +27,22 @@ jobs:
           node-version: 18
           cache: 'pnpm'
 
-      - name: Setup pnpm global bin (for any globals, though we avoid them)
-        run: |
-          pnpm setup
-          echo "PNPM_HOME=$HOME/.local/share/pnpm" >> $GITHUB_ENV
-          echo "$HOME/.local/share/pnpm" >> $GITHUB_PATH
-          mkdir -p "$HOME/.local/share/pnpm"
-          echo "pnpm: $(which pnpm)"
-          echo "pnpm global bin: $(pnpm bin -g)"
-
-      - name: Add pnpm local bin to PATH
-        run: |
-          echo "$(pnpm bin)" >> $GITHUB_PATH
-
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile || pnpm install  # Fallback if no lockfile
-
-      - name: Install Capacitor CLI and TypeScript locally
-        run: pnpm add -D @capacitor/cli typescript
-
-      - name: Install Capacitor core and Android
-        run: pnpm add @capacitor/core @capacitor/android
+        run: pnpm install --frozen-lockfile
 
       - name: Build web app
-        run: pnpm run build || echo "No build script defined, skipping"  # Adjust if your build command differs
+        run: pnpm run build
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Initialize Capacitor if needed
-        run: |
-          if [ ! -f "capacitor.config.json" ] && [ ! -f "capacitor.config.ts" ]; then
-            pnpm exec cap init com.example.app app --web-dir dist  # Replace with your app ID/name; adjust --web-dir
-          else
-            echo "Capacitor config exists"
-          fi
-
-      - name: Add Android platform to Capacitor
-        run: |
-          if [ ! -d "android" ]; then
-            pnpm exec cap add android
-          else
-            echo "Android platform exists"
-          fi
-
-      - name: Copy web assets to Android project
-        run: pnpm exec cap copy
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Sync Capacitor project
-        run: pnpm exec cap sync
+        # This command updates the native project with your web app changes.
+        # It will also add the android platform if it doesn't exist.
+        run: pnpm exec cap sync android
 
       - name: Build Android project
         working-directory: android
@@ -92,5 +55,5 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug.apk
+          name: Translator.app-debug.apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
