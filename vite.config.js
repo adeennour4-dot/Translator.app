@@ -1,9 +1,21 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import path from 'path'
+import { fileURLToPath } from 'url' // <-- Add this import
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  // --- FIX: Set the base to relative paths for Capacitor --- 
+  base: './',
+
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      // --- FIX: Correctly resolve path alias for ESM compatibility --- 
+      "@": path.resolve(fileURLToPath(import.meta.url), "../src"),
+    },
+  },
   build: {
     rollupOptions: {
       external: [
@@ -12,10 +24,17 @@ export default defineConfig({
         '@capacitor/haptics',
         '@capacitor/keyboard',
         '@capacitor/status-bar',
-        '@capacitor/filesystem', // <-- Add this line
-        // Add any other Capacitor plugins you might be using here
+        '@capacitor/filesystem',
       ],
     },
   },
+  optimizeDeps: {
+    exclude: [
+      '@capacitor/app',
+      '@capacitor/haptics',
+      '@capacitor/keyboard',
+      '@capacitor/status-bar',
+      '@capacitor/filesystem',
+    ],
+  },
 })
-
