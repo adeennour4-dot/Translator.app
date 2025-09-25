@@ -25,7 +25,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 9 # or your project-required version
+          version: 9
 
       # Setup pnpm global bin
       - name: Setup PNPM
@@ -34,13 +34,19 @@ jobs:
           echo "PNPM_HOME=$HOME/.local/share/pnpm" >> $GITHUB_ENV
           echo "$HOME/.local/share/pnpm" >> $GITHUB_PATH
 
-      # Install TypeScript globally
+      # Install TypeScript globally (optional if already in devDeps)
       - name: Install TypeScript globally
         run: pnpm add -g typescript
 
       # Install project dependencies
       - name: Install dependencies
         run: pnpm install
+
+      # Add Capacitor Android platform
+      - name: Add Capacitor Android
+        run: |
+          pnpm add @capacitor/android
+          pnpm exec cap add android
 
       # Setup JDK
       - name: Setup JDK
@@ -63,4 +69,3 @@ jobs:
         with:
           name: app-debug
           path: app/build/outputs/apk/debug/app-debug.apk
-
