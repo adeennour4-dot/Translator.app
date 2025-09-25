@@ -35,15 +35,15 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          # UPDATE THE JAVA VERSION HERE
+          java-version: '21'
 
       - name: Add Android Platform
         run: pnpm exec cap add android
 
       - name: Sync Capacitor project
         run: pnpm exec cap sync android
-
-      # THIS IS THE NEW STEP THAT FIXES THE JAVA ERROR
+        
       - name: Patch Gradle Configuration
         run: |
           cd android
