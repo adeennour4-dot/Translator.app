@@ -27,15 +27,9 @@ jobs:
           node-version: 18
           cache: 'pnpm'
 
-      # Install project dependencies (includes TypeScript if in devDependencies)
+      # Install project dependencies (includes @capacitor/cli as devDep)
       - name: Install dependencies
         run: pnpm install
-
-      # Add Capacitor Android platform (only if not already committed in repo)
-      - name: Add Capacitor Android
-        run: |
-          pnpm add @capacitor/android
-          pnpm exec cap add android
 
       # Setup JDK
       - name: Setup JDK
