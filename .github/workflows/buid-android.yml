@@ -19,13 +19,11 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -38,6 +36,10 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      # THIS IS THE NEW STEP WE ARE ADDING
+      - name: Add Android Platform
+        run: pnpm exec cap add android
 
       - name: Sync Capacitor project
         run: pnpm exec cap sync android
@@ -60,4 +62,3 @@ jobs:
         with:
           name: Translator.app-release-signed.apk
           path: android/app/build/outputs/apk/release/app-release-signed.apk
-
