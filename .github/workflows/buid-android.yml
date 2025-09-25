@@ -22,10 +22,14 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 9 # or 8 if your project requires it
+          version: 9
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: Install Capacitor plugins
+        run: |
+          pnpm add @capacitor/filesystem @capacitor/preferences @capacitor/haptics @capacitor/camera
 
       - name: Build web app
         run: pnpm run build
