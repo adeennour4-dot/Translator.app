@@ -1,0 +1,62 @@
+[span_0](start_span)apply plugin: 'com.android.application'[span_0](end_span)
+
+android {
+    [span_1](start_span)namespace "com.translationstudio.app"[span_1](end_span)
+    [span_2](start_span)compileSdk rootProject.ext.compileSdkVersion[span_2](end_span)
+    defaultConfig {
+        [span_3](start_span)applicationId "com.translationstudio.app"[span_3](end_span)
+        [span_4](start_span)minSdkVersion rootProject.ext.minSdkVersion[span_4](end_span)
+        [span_5](start_span)targetSdkVersion rootProject.ext.targetSdkVersion[span_5](end_span)
+        [span_6](start_span)versionCode 1[span_6](end_span)
+        [span_7](start_span)versionName "1.0"[span_7](end_span)
+        [span_8](start_span)testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"[span_8](end_span)
+        aaptOptions {
+             [span_9](start_span)// Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.[span_9](end_span)
+             [span_10](start_span)// Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61[span_10](end_span)
+            [span_11](start_span)ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'[span_11](end_span)
+        }
+    }
+
+    // YOU MUST ADD THIS CODE BLOCK HERE TO FIX THE ERROR
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    buildTypes {
+        release {
+            [span_12](start_span)minifyEnabled false[span_12](end_span)
+            [span_13](start_span)proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'[span_13](end_span)
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        [span_14](start_span)dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'[span_14](end_span)
+    }
+}
+
+dependencies {
+    [span_15](start_span)implementation fileTree(include: ['*.jar'], dir: 'libs')[span_15](end_span)
+    [span_16](start_span)implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"[span_16](end_span)
+    [span_17](start_span)implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"[span_17](end_span)
+    [span_18](start_span)implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"[span_18](end_span)
+    [span_19](start_span)implementation project(':capacitor-android')[span_19](end_span)
+    [span_20](start_span)testImplementation "junit:junit:$junitVersion"[span_20](end_span)
+    [span_21](start_span)androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"[span_21](end_span)
+    [span_22](start_span)androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"[span_22](end_span)
+    [span_23](start_span)implementation project(':capacitor-cordova-android-plugins')[span_23](end_span)
+}
+
+[span_24](start_span)apply from: 'capacitor.build.gradle'[span_24](end_span)
+
+try {
+    [span_25](start_span)def servicesJSON = file('google-services.json')[span_25](end_span)
+    if (servicesJSON.text) {
+        [span_26](start_span)apply plugin: 'com.google.gms.google-services'[span_26](end_span)
+    }
+} catch(Exception e) {
+    [span_27](start_span)logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")[span_27](end_span)
+}
+
