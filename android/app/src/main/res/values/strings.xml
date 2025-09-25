@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">Advanced Translation Studio</string>
-    <string name="title_activity_main">Advanced Translation Studio</string>
-    <string name="package_name">com.translationstudio.app</string>
-    <string name="custom_url_scheme">com.translationstudio.app</string>
-</resources>
