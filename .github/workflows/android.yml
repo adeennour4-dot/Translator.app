@@ -41,7 +41,7 @@ jobs:
           echo "pnpm: $(which pnpm || true)"
           echo "pnpm global bin: $(pnpm bin -g || true)"
 
-      # 5) Install project deps and required Capacitor/TS packages (no global installs)
+      # 5) Install project dependencies + Capacitor + TypeScript
       - name: Install project dependencies + Capacitor + TypeScript
         run: |
           pnpm install --frozen-lockfile
