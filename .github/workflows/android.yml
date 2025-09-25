@@ -21,11 +21,11 @@ jobs:
           node-version: 18
           cache: 'pnpm'
 
-      # Setup pnpm
-      - name: Setup pnpm
+      # Install pnpm
+      - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 9
+          version: 9 # use latest stable or project-required version
 
       # Configure PNPM global bin directory
       - name: Setup PNPM global bin
@@ -63,5 +63,4 @@ jobs:
         with:
           name: app-debug
           path: app/build/outputs/apk/debug/app-debug.apk
-
 
