@@ -11,54 +11,72 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repo
+      # 1) Checkout
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Setup Node.js
+      # 2) Setup Node.js (for pnpm & node)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'pnpm'
 
-      # 3. Setup pnpm
+      # 3) Ensure pnpm is installed and available in PATH
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      # 4. Install project + Capacitor + TypeScript deps
-      - name: Install dependencies
+      # 4) Create/configure pnpm global bin dir (prevents ERR_PNPM_NO_GLOBAL_BIN_DIR)
+      - name: Ensure PNPM global bin dir and PATH
         run: |
-          pnpm install
-          pnpm add -D typescript
-          pnpm add -D @capacitor/cli
-          pnpm add @capacitor/core
-          pnpm add @capacitor/android
+          # create pnpm global dir and register it with pnpm
+          pnpm setup
+          # export the typical pnpm global location for runners
+          echo "PNPM_HOME=$HOME/.local/share/pnpm" >> $GITHUB_ENV
+          echo "$HOME/.local/share/pnpm" >> $GITHUB_PATH
+          mkdir -p "$HOME/.local/share/pnpm"
+          # sanity check
+          echo "pnpm: $(which pnpm || true)"
+          echo "pnpm global bin: $(pnpm bin -g || true)"
 
-      # 5. Add Android platform (ignore if exists)
-      - name: Add Capacitor Android
-        run: pnpm exec cap add android || echo "Android already added"
+      # 5) Install project deps and required Capacitor/TS packages (no global installs)
+      - name: Install project dependencies + Capacitor + TypeScript
+        run: |
+          pnpm install --frozen-lockfile
+          # ensure TypeScript (for capacitor.config.ts) and Capacitor CLI/core/android exist
+          pnpm add -D typescript @capacitor/cli
+          pnpm add @capacitor/core @capacitor/android
 
-      # 6. Setup JDK + Android SDK
+      # 6) Add Capacitor Android platform only if missing (safe to run every CI)
+      - name: Add Capacitor Android (if needed)
+        run: |
+          if [ -d android ] || [ -d android/ ]; then
+            echo "android/ exists — skipping cap add"
+          else
+            pnpm exec cap add android
+          fi
+
+      # 7) Setup Java (JDK 17)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
+      # 8) Setup Android SDK
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # 7. Build APK
+      # 9) Build APK
       - name: Build APK
         run: |
-          cd android
+          cd android || exit 1
           ./gradlew assembleDebug
 
-      # 8. Upload APK artifact
-      - name: Upload APK
+      # 10) Upload APK artifact
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug.apk
