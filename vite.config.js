@@ -19,9 +19,18 @@ export default defineConfig({
         '@capacitor/haptics',
         '@capacitor/keyboard',
         '@capacitor/status-bar',
-        '@capacitor/filesystem', // <-- Add this line
+        '@capacitor/filesystem', // <-- Keep this line
         // Add any other Capacitor plugins you might be using here
       ],
     },
+  },
+  optimizeDeps: {
+    exclude: [
+      '@capacitor/app',
+      '@capacitor/haptics',
+      '@capacitor/keyboard',
+      '@capacitor/status-bar',
+      '@capacitor/filesystem', // <-- Add this line
+    ],
   },
 })
