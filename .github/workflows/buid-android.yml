@@ -4,61 +4,54 @@ on:
   push:
     branches:
       - main
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'pnpm'
+          node-version: 18
+          cache: pnpm
+
+      - name: Install pnpm
+        run: npm install -g pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Copy PDF.js Worker
-        run: cp node_modules/pdfjs-dist/build/pdf.worker.min.js public/pdf.worker.min.js
+        run: pnpm install
 
       - name: Build web app
         run: pnpm run build
+
+      - name: Ensure Android platform exists
+        run: |
+          if [ ! -d "android" ]; then
+            pnpm exec cap add android
+          fi
+
+      - name: Sync Capacitor project
+        run: pnpm exec cap sync android
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: 17
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
 
-      - name: Add Android Platform
-        run: pnpm exec cap add android
-
-      - name: Sync Capacitor project
-        run: pnpm exec cap sync android
-        
-      - name: Decode Keystore
-        # This step decodes the base64 secret into a keystore file for Gradle
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/release.keystore
-
-      - name: Build and Sign Release APK
-        working-directory: android
-        # This single command builds the app and signs it using your secrets
-        run: ./gradlew assembleRelease -Pandroid.injected.signing.store.file=$(pwd)/release.keystore -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
+      - name: Build Android APK
+        run: cd android && ./gradlew assembleDebug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Translator.app-release.apk
-          # The path for the official signed APK is different
-          path: android/app/build/outputs/apk/release/app-release.apk
+          name: app-debug.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
