@@ -37,12 +37,18 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # THIS IS THE NEW STEP WE ARE ADDING
       - name: Add Android Platform
         run: pnpm exec cap add android
 
       - name: Sync Capacitor project
         run: pnpm exec cap sync android
+
+      # THIS IS THE NEW STEP THAT FIXES THE JAVA ERROR
+      - name: Patch Gradle Configuration
+        run: |
+          cd android
+          sed -i "s/androidxAppCompatVersion = '.*'/androidxAppCompatVersion = '1.6.1'/" variables.gradle
+          cd ..
 
       - name: Build Release APK
         working-directory: android
