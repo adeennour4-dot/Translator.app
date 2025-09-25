@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout
+      # 1. Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Node + pnpm
+      # 2. Setup Node.js + pnpm
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -25,19 +25,19 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm
 
-      # 3. Install Capacitor & project deps
+      # 3. Install project dependencies + Capacitor packages
       - name: Install dependencies
         run: |
           pnpm install
           pnpm add -D @capacitor/cli
           pnpm add @capacitor/core
-          pnpm add @capacitor/android@latest
+          pnpm add @capacitor/android
 
-      # 4. Add Android platform
-      - name: Add Android platform
+      # 4. Add Android platform (ignore if already exists)
+      - name: Add Capacitor Android
         run: pnpm exec cap add android || echo "Android already added"
 
-      # 5. Setup JDK & Android SDK
+      # 5. Setup JDK + Android SDK
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -53,7 +53,7 @@ jobs:
           cd android
           ./gradlew assembleDebug
 
-      # 7. Upload APK
+      # 7. Upload APK artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
