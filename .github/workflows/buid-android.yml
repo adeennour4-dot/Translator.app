@@ -33,7 +33,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          # This line is the specific fix for your error
+          # THIS IS THE LINE THAT FIXES THE ERROR
           java-version: '21'
 
       - name: Setup Android SDK
@@ -45,21 +45,15 @@ jobs:
       - name: Sync Capacitor project
         run: pnpm exec cap sync android
 
+      - name: Decode Keystore
+        # This step decodes the secret into a file for the build step
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/release.keystore
+
       - name: Build and Sign Release APK
         working-directory: android
-        # This single command builds the app and signs it using your secrets
+        # This command builds and signs the APK using your secrets
         run: ./gradlew assembleRelease -Pandroid.injected.signing.store.file=$(pwd)/release.keystore -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
-        env:
-          # You must have these secrets configured in your repository settings
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Decode Keystore
-        # This step must happen before the build
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/release.keystore
-      
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
