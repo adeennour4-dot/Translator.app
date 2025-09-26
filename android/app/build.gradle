@@ -29,7 +29,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-} // <-- This is the correct final brace for the 'android' block
+}
 
 repositories {
     flatDir{
@@ -63,4 +63,5 @@ try {
 } catch(Exception e) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }
-// NO EXTRA '}' HERE. THE FILE ENDS HERE.
+// The file is now syntactically correct and ends here.
+
