@@ -1,34 +1,16 @@
-import { defineConfig } from "tailwindcss"
-
-export default defineConfig({
+/** @type {import('tailwindcss').Config} */
+export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}",  // adjust if you use a different structure
   ],
   theme: {
     extend: {
       colors: {
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        card: "hsl(var(--card))",
-        "card-foreground": "hsl(var(--card-foreground))",
-        popover: "hsl(var(--popover))",
-        "popover-foreground": "hsl(var(--popover-foreground))",
-        primary: "hsl(var(--primary))",
-        "primary-foreground": "hsl(var(--primary-foreground))",
-        secondary: "hsl(var(--secondary))",
-        "secondary-foreground": "hsl(var(--secondary-foreground))",
-        muted: "hsl(var(--muted))",
-        "muted-foreground": "hsl(var(--muted-foreground))",
-        accent: "hsl(var(--accent))",
-        "accent-foreground": "hsl(var(--accent-foreground))",
-        destructive: "hsl(var(--destructive))",
-        "destructive-foreground": "hsl(var(--destructive-foreground))",
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
+        background: "#ffffff",   // plain white
+        foreground: "#000000",   // optional, add if you use text-foreground anywhere
       },
     },
   },
   plugins: [],
-})
+};
