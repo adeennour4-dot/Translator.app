@@ -47,13 +47,14 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 217.2 32.6% 83.9%;
   }
-} 
+}
 
 @layer base {
   * {
-    @apply border-border; 
+    @apply border-input;
   }
-  
+
   body {
     @apply bg-background text-foreground;
-  
+  }
+}
