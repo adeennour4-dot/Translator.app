@@ -47,15 +47,13 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 217.2 32.6% 83.9%;
   }
-} // <-- This brace was missing in the code structure you were editing
+} 
 
 @layer base {
   * {
-    /* Corrected: Use a standard Tailwind class that applies a border */
     @apply border-border; 
   }
   
   body {
     @apply bg-background text-foreground;
-  }
-}
+  
