@@ -17,7 +17,7 @@ android {
         }
     }
 
-    // FIX 1: JAVA COMPATIBILITY 
+    // FIX 1: JAVA COMPATIBILITY (solves 'invalid source release: 21' error)
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
