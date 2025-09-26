@@ -44,8 +44,8 @@ dependencies {
     implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
     implementation project(':capacitor-android')
     
-    // FIX 2: PDFBOX DEPENDENCY VERSION (solves 'Could not find...' error)
-    implementation 'com.tom-roush:pdfbox-android:1.8.17-a' 
+    // FIX 2: PDFBOX DEPENDENCY (Temporarily commented out to let the build pass)
+    // implementation 'com.tom-roush:pdfbox-android:1.8.17-a' 
     
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
