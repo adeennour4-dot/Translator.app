@@ -51,7 +51,7 @@
 
 @layer base {
   * {
-    @apply border; /* Corrected from border-input to standard Tailwind utility */
+    @apply border;
   }
 
   body {
