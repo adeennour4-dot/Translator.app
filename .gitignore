@@ -2,3 +2,9 @@
 # Capacitor/Android generated folder
 android/
 android/
+# You might have a line like this already:
+android/ 
+
+# ADD THIS EXCEPTION:
+!android/build.gradle
+
