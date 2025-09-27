@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-// ✅ ALL IMPORTS CORRECTED TO LOWERCASE FILENAMES
+// ✅ ALL IMPORTS MUST BE LOWERCASE - MATCHING ACTUAL FILES
 import { Button } from './components/ui/button.jsx';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card.jsx';
 import { Progress } from './components/ui/progress.jsx';
@@ -132,7 +132,6 @@ function App() {
       if (pdfGenerator.downloadPDF) {
         await pdfGenerator.downloadPDF(pdfBytes, filename);
       } else {
-        // Fallback download method
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
