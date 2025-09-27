@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/Button.jsx'; // ✅ Capital 'B'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card.jsx'; // ✅ Capital 'C'
-import { Progress } from '@/components/ui/Progress.jsx'; // ✅ Capital 'P'
-import { Badge } from '@/components/ui/Badge.jsx'; // ✅ Capital 'B'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs.jsx'; // ✅ Capital 'T'
-import { Switch } from '@/components/ui/Switch.jsx'; // ✅ Capital 'S'
+// Use relative paths instead of @ aliases
+import { Button } from './components/ui/Button.jsx';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/Card.jsx';
+import { Progress } from './components/ui/Progress.jsx';
+import { Badge } from './components/ui/Badge.jsx';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/Tabs.jsx';
+import { Switch } from './components/ui/Switch.jsx';
 import { Upload, FileText, Download, Languages, Eye, Palette, Zap, AlertCircle } from 'lucide-react';
 import PDFViewer from './components/PDFViewer.jsx';
 import PDFProcessor from './utils/pdfProcessor.js';
@@ -270,7 +271,6 @@ function App() {
                       </CardContent>
                     </Card>
                     
-                    {/* PDFViewer component would go here */}
                     <div className="border rounded-lg p-4 min-h-[400px] flex items-center justify-center">
                       <p className="text-muted-foreground">PDF Preview would appear here</p>
                     </div>
