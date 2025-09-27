@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 // Use relative paths instead of @ aliases
-import { Button } from './components/ui/Button.jsx';
+import { Button } from './components/ui/button.jsx';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/Card.jsx';
 import { Progress } from './components/ui/Progress.jsx';
 import { Badge } from './components/ui/Badge.jsx';
