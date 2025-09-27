@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-// ✅ ALL IMPORTS CORRECTED TO LOWERCASE
 import { Button } from './components/ui/button.jsx';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card.jsx';
 import { Progress } from './components/ui/progress.jsx';
