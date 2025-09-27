@@ -1,7 +1,7 @@
 import path from "path"
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
-import tailwindcss from "@tailwindcss/vite"
+import tailwindcss from "tailwindcss"
 
 export default defineConfig({
   server: {
@@ -21,4 +21,10 @@ export default defineConfig({
       "@": path.resolve(new URL("./src", import.meta.url).pathname),
     },
   },
+  build: {
+    rollupOptions: {
+      external: ["pdf-lib", "jspdf"], // Add pdf-lib and jspdf here
+    },
+  },
 })
+
