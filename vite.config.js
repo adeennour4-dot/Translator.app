@@ -1,30 +1,13 @@
-import path from "path"
-import { defineConfig } from "vite"
-import react from "@vitejs/plugin-react"
-import tailwindcss from "tailwindcss"
+// vite.config.js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import path from 'path' // Make sure to import 'path'
 
 export default defineConfig({
-  server: {
-    host: true,
-  },
-  preview: {
-    host: true,
-    port: 4173,
-    strictPort: true,
-    allowedHosts: [
-      "4173-itjeazdo7vamo1545fdbb-8d47f400.manus.computer"
-    ]
-  },
-  plugins: [react(), tailwindcss()],
+  plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(new URL("./src", import.meta.url).pathname),
-    },
-  },
-  build: {
-    rollupOptions: {
-      external: ["pdf-lib", "jspdf"], // Add pdf-lib and jspdf here
+      '@': path.resolve(__dirname, './src'),
     },
   },
 })
-
