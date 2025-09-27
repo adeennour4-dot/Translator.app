@@ -59,7 +59,7 @@ jobs:
           ./gradlew assembleRelease \
           -Pandroid.injected.signing.store.file=app/release.keystore \
           -Pandroid.injected.signing.key.alias=${{ secrets.KEYSTORE_ALIAS }} \
-          -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+          -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_STORE_PASSWORD }} \
           -Pandroid.injected.signing.key.password=${{ secrets.KEYSTORE_PASSWORD }}
 
       - name: Upload APK
