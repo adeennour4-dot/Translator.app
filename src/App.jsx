@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-// Use relative paths instead of @ aliases
+// ✅ ALL IMPORTS CORRECTED TO LOWERCASE
 import { Button } from './components/ui/button.jsx';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/Card.jsx';
-import { Progress } from './components/ui/Progress.jsx';
-import { Badge } from './components/ui/Badge.jsx';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/Tabs.jsx';
-import { Switch } from './components/ui/Switch.jsx';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card.jsx';
+import { Progress } from './components/ui/progress.jsx';
+import { Badge } from './components/ui/badge.jsx';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs.jsx';
+import { Switch } from './components/ui/switch.jsx';
 import { Upload, FileText, Download, Languages, Eye, Palette, Zap, AlertCircle } from 'lucide-react';
 import PDFViewer from './components/PDFViewer.jsx';
 import PDFProcessor from './utils/pdfProcessor.js';
