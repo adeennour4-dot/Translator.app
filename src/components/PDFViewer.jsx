@@ -1,15 +1,26 @@
 import { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 
-// Force CDN worker - this bypasses all local path issues
-pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+// Disable worker entirely to bypass the loading issue
+pdfjs.GlobalWorkerOptions.workerSrc = '';
+pdfjs.disableWorker = true;
 
 const PDFViewer = ({ file }) => {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
+  const [error, setError] = useState(null);
 
   function onDocumentLoadSuccess({ numPages }) {
     setNumPages(numPages);
+    setError(null);
+  }
+
+  function onDocumentLoadError(error) {
+    setError(error.message);
+  }
+
+  if (error) {
+    return <div className="text-red-500">PDF Error: {error}</div>;
   }
 
   return (
@@ -17,6 +28,7 @@ const PDFViewer = ({ file }) => {
       <Document
         file={file}
         onLoadSuccess={onDocumentLoadSuccess}
+        onLoadError={onDocumentLoadError}
         loading="Loading PDF..."
         error="Failed to load PDF"
       >
@@ -24,17 +36,19 @@ const PDFViewer = ({ file }) => {
       </Document>
       
       {numPages && (
-        <div>
+        <div className="flex justify-center gap-4 mt-4">
           <button 
             onClick={() => setPageNumber(prev => Math.max(prev - 1, 1))}
             disabled={pageNumber <= 1}
+            className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
           >
             Previous
           </button>
-          <span> Page {pageNumber} of {numPages} </span>
+          <span className="py-2">Page {pageNumber} of {numPages}</span>
           <button 
             onClick={() => setPageNumber(prev => Math.min(prev + 1, numPages))}
             disabled={pageNumber >= numPages}
+            className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
           >
             Next
           </button>
