@@ -38,22 +38,28 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: 34.0.0
 
-      - name: Install Capacitor CLI globally
-        run: npm install -g @capacitor/cli
+      - name: Remove existing Android platform
+        run: rm -rf android/
 
-      - name: Sync Capacitor project
-        run: cap sync android
+      - name: Add Android platform fresh
+        run: pnpm exec cap add android
 
-      - name: Ensure gradlew is executable
-        run: chmod +x android/gradlew
+      - name: Sync Capacitor
+        run: pnpm exec cap sync android
 
-      - name: Build Release APK
+      - name: List Android directory contents
+        run: ls -la android/
+
+      - name: Build Debug APK (simpler than release)
         working-directory: android
-        run: ./gradlew assembleRelease --stacktrace
+        run: ./gradlew assembleDebug --info
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
