@@ -1,3 +1,11 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -6,19 +14,64 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
 
+      # Install pnpm
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 9 # or the pnpm version your project uses
+          version: 9 # or the version you use locally
 
+      # Install JS dependencies
       - name: Install dependencies
         run: pnpm install
 
+      # Build web app
       - name: Build web app
         run: pnpm run build
+
+      # Setup Java 17 (required by Android)
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Setup Android SDK
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      # Add Android platform (Capacitor)
+      - name: Add Android Platform
+        run: npx cap add android
+
+      # Sync Capacitor project
+      - name: Sync Capacitor project
+        run: npx cap sync android
+
+      # Decode keystore (from GitHub Secrets)
+      - name: Decode Keystore
+        working-directory: android
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/release.keystore
+
+      # Build signed release APK
+      - name: Build and Sign Release APK
+        working-directory: android
+        run: |
+          ./gradlew assembleRelease \
+          -Pandroid.injected.signing.store.file=app/release.keystore \
+          -Pandroid.injected.signing.key.alias=${{ secrets.KEYSTORE_ALIAS }} \
+          -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_STORE_PASSWORD }} \
+          -Pandroid.injected.signing.key.password=${{ secrets.KEYSTORE_PASSWORD }}
+
+      # Upload APK as artifact
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
