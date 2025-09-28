@@ -1,18 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 
-// Use CDN worker for Capacitor compatibility
-pdfjs.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-
-// Use CDN worker for Capacitor compatibility
-pdfjs.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-import 'react-pdf/dist/Page/TextLayer.css';
-
-// Use CDN worker for Capacitor compatibility
-pdfjs.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
-// Configure PDF.js worker for Capacitor compatibility
+// Force CDN worker - this bypasses all local path issues
+pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 const PDFViewer = ({ file }) => {
   const [numPages, setNumPages] = useState(null);
@@ -23,29 +13,25 @@ const PDFViewer = ({ file }) => {
   }
 
   return (
-    <div className="pdf-viewer">
+    <div>
       <Document
         file={file}
         onLoadSuccess={onDocumentLoadSuccess}
         loading="Loading PDF..."
         error="Failed to load PDF"
       >
-        <Page 
-          pageNumber={pageNumber} 
-          renderTextLayer={true}
-          renderAnnotationLayer={true}
-        />
+        <Page pageNumber={pageNumber} />
       </Document>
       
       {numPages && (
-        <div className="pdf-controls">
+        <div>
           <button 
             onClick={() => setPageNumber(prev => Math.max(prev - 1, 1))}
             disabled={pageNumber <= 1}
           >
             Previous
           </button>
-          <span>Page {pageNumber} of {numPages}</span>
+          <span> Page {pageNumber} of {numPages} </span>
           <button 
             onClick={() => setPageNumber(prev => Math.min(prev + 1, numPages))}
             disabled={pageNumber >= numPages}
