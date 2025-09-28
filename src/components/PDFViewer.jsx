@@ -3,15 +3,8 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
-// Configure PDF.js worker
-if (typeof window !== 'undefined' && window.Capacitor) {
-  pdfjs.GlobalWorkerOptions.workerSrc = '/assets/pdf.worker.min.js';
-} else {
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.js',
-    import.meta.url
-  ).toString();
-}
+// Configure PDF.js worker for Capacitor compatibility
+pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 const PDFViewer = ({ file }) => {
   const [numPages, setNumPages] = useState(null);
