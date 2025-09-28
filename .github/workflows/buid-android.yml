@@ -21,8 +21,10 @@ jobs:
           cache: 'pnpm'
 
 
-      - name: Install pnpm globally
-        run: npm install -g pnpm
+      - name: Download and setup pnpm
+        run: |
+          wget -qO- https://get.pnpm.io/install.sh | bash -
+          echo "$(pnpm store path)/../.bin" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: npx pnpm install
