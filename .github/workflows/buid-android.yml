@@ -14,27 +14,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
 
-      # Primary pnpm installer (preferred)
       - name: Setup pnpm (action)
         uses: pnpm/action-setup@v3
         with:
           version: 8
 
-      # Verify pnpm and fallbacks (corepack / npm -g) — prints debug info
       - name: Ensure pnpm is available (verify + fallbacks)
         shell: bash
         run: |
           set -euxo pipefail
-
           echo "PATH: $PATH"
-          echo "Which node:"
           which node || true
           node -v || true
 
@@ -45,7 +40,6 @@ jobs:
           fi
 
           echo "pnpm not found after pnpm/action-setup — trying corepack..."
-          # corepack is bundled with modern Node; enable and prepare pnpm
           corepack enable || echo "corepack enable failed (non-fatal)"
           corepack prepare pnpm@8 --activate || echo "corepack prepare failed (non-fatal)"
 
@@ -69,38 +63,47 @@ jobs:
           ls -la $(npm bin -g) || true
           exit 1
 
-      # Install JS dependencies with pnpm
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pnpm-store
+            node_modules
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
       - name: Install dependencies
         run: pnpm install
 
-      # Build web app
       - name: Build web app
         run: pnpm run build
 
-      # Setup Java 17 (required by Android)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # Setup Android SDK
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # Add Android platform (Capacitor) - This step is usually done locally once, but kept for completeness if needed in CI
       - name: Add Android Platform
-        run: npx cap add android || true # Use || true to prevent failure if platform already added
+        run: npx cap add android || true
 
       - name: Sync Capacitor project
         run: npx cap sync android
 
-      # Decode keystore from GitHub secrets
+      - name: Make keystore directory
+        run: mkdir -p android/app
+
+      - name: Ensure gradlew is executable
+        run: chmod +x android/gradlew
+
       - name: Decode Keystore
         working-directory: android
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/release.keystore
 
-      # Build and sign APK
       - name: Build and Sign Release APK
         working-directory: android
         run: |
@@ -115,3 +118,10 @@ jobs:
         with:
           name: android-apk
           path: android/app/build/outputs/apk/release/app-release.apk
+
+      - name: Upload build logs (optional)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: android/app/build/outputs/
