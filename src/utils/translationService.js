@@ -11,7 +11,8 @@ export class TranslationService {
 
   async loadDictionary() {
     try {
-     const response = await fetch(\'/public/combined_dictionary.json\');      if (!response.ok) {
+      const response = await fetch('/public/combined_dictionary.json');
+      if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       this.dictionary = await response.json();
