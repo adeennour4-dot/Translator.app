@@ -18,19 +18,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: 'npm'
 
 
-      - name: Download and setup pnpm
-        run: |
-          wget -qO- https://get.pnpm.io/install.sh | bash -
-          echo "$(pnpm store path)/../.bin" >> $GITHUB_PATH
+
 
       - name: Install dependencies
-        run: npx pnpm install
+        run: npm install
 
       - name: Build web app
-        run: npx pnpm run build
+        run: npm run build
 
       # Use Java 17 for better Android compatibility
       - name: Setup Java
@@ -43,10 +40,10 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Add Android Platform
-        run: npx pnpm exec cap add android
+        run: npx cap add android
 
       - name: Sync Capacitor project
-        run: npx pnpm exec cap sync android
+        run: npx cap sync android
 
       # Fix keystore path for standard Capacitor structure
       - name: Decode Keystore
