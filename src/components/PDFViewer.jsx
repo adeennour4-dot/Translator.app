@@ -1,10 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
+
+// Use CDN worker for Capacitor compatibility
+pdfjs.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 import 'react-pdf/dist/Page/AnnotationLayer.css';
+
+// Use CDN worker for Capacitor compatibility
+pdfjs.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 import 'react-pdf/dist/Page/TextLayer.css';
 
+// Use CDN worker for Capacitor compatibility
+pdfjs.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
 // Configure PDF.js worker for Capacitor compatibility
-pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 const PDFViewer = ({ file }) => {
   const [numPages, setNumPages] = useState(null);
