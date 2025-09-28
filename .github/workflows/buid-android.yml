@@ -25,10 +25,10 @@ jobs:
         run: npm install -g pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: npx pnpm install
 
       - name: Build web app
-        run: pnpm run build
+        run: npx pnpm run build
 
       # Use Java 17 for better Android compatibility
       - name: Setup Java
@@ -41,10 +41,10 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Add Android Platform
-        run: pnpm exec cap add android
+        run: npx pnpm exec cap add android
 
       - name: Sync Capacitor project
-        run: pnpm exec cap sync android
+        run: npx pnpm exec cap sync android
 
       # Fix keystore path for standard Capacitor structure
       - name: Decode Keystore
