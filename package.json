@@ -31,7 +31,8 @@
     "react-pdf": "^7.7.3",
     "tailwind-merge": "^2.2.0",
     "tesseract.js": "^5.1.1",
-    "vite": "^5.4.20"
+    "vite": "^5.4.20",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "@types/node": "^20.10.7",

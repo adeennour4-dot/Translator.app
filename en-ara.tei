@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>English-Arabic FreeDict Dictionary</title>
+        <respStmt>
+          <resp>by</resp>
+          <name>Arabeyes.org</name>
+        </respStmt>
+        <respStmt>
+          <!--for the freedict database-->
+          <resp>Maintainer</resp>
+          <name>[up for grabs]</name>
+        </respStmt>
+      </titleStmt>
+      <editionStmt>
+        <edition>0.6.3</edition>
+      </editionStmt>
+      <extent>87424 headwords</extent>
+      <publicationStmt>
+        <publisher>FreeDict</publisher>
+        <availability status="free">
+          <p>Copyright (C) 1999-2017 by various authors listed below.</p>
+          <p>Available under the terms of the <ref target="https://www.gnu.org/licenses/gpl-2.0.html">GNU General Public License ver. 2.0 and any later version</ref>.</p>
+          <p>This program is free software; you can redistribute it and/or
+        modify it under the terms of the GNU General Public License as
+        published by the Free Software Foundation; either version 2 of the
+        License, or (at your option) any later version.</p>
+          <p>This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+        General Public License for more details.</p>
+          <p>You should have received a copy of the GNU General Public License
+        along with this program; if not, write to the Free Software
+        Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+        02111-1307, USA.</p>
+        </availability>
+        <pubPlace>
+          <ref target="http://freedict.org/">http://freedict.org/</ref>
+        </pubPlace>
+      </publicationStmt>
+      <notesStmt>
+        <note type="status">stable</note>
+      </notesStmt>
+      <sourceDesc>
+        <p>Home: <ptr target="http://www.arabeyes.org/project.php?proj=Wordlist" /></p>
+        <p>-* www.Arabeyes.org *-</p>
+        <p>If you\'d like to help the Arabeyes Project, then consider:</p>
+        <p>	http://www.arabeyes.org/donate.php</p>
+      </sourceDesc>
+    </fileDesc>
+    <encodingDesc>
+      <projectDesc>
+        <p>This dictionary comes to you through nice people making it available for free and for
+        good. It is part of the FreeDict project, <ref target="http://freedict.org/">http://freedict.org/</ref>. This project aims to make translating
+        dictionaries available for free. Your contributions are welcome!</p>
+      </projectDesc>
+    </encodingDesc>
+    <revisionDesc>
+      <change when="2017-11-29" who="#humenda" n="0.6.3">
+      <name>Sebastian Humenda</name>
+        <list>
+          <item>change licencing information</item>
+          <item>remove duplicated entries</item>
+        </list>
+      </change>
+      <change when="2014-02-17">
+        <name>Nikolay Shaplov</name>: One-line encoded xml converted into an indented one.
+      </change>
+      <change when="2010-10-29">
+        <date>2010-10-29</date>
+        <name>Piotr Bański</name>: Conversion of TEI P4 source into P5 via tools/freedict_P4toP5.xsl; manual clean-up.
+      </change>
+      <change>
+        <date>2008-05-30</date>
+        <name>Kęstutis Biliūnas</name> Updated to version 0.6.1 from Arabeyes.org.
+      </change>
+      <change>
+        <date>2007-02-10</date>
+        <name>Michael Bunk</name> Enabled phonetics.
+      </change>
+    </revisionDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <entry>
+        <form>
+          <orth>10th</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>العاشر</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>1st</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>الأول</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>2nd</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>الثاني</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>3rd</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>الثالث</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>4th</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>الرابع</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>5th</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>الخامس</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>6th</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>السادس</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>7th</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>السابع</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>8th</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>الثامن</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>9th</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>التاسع</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>A</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>آي - الحرف الأول في اللغة الإنجليزية</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>A&amp;M</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>زراعيّ و ميكانيكيّ</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>A&amp;P</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>شركة الشّاي الباسيفيكيّة و الأطلنطيّة</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>A-</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>حرف يسبق الكلمة ويعني في إتجاه كذا</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>A-bomb</orth>
+        </form>
+        <sense n="1">
+          <cit type="trans">
+            <quote>القنبلة النووية</quote>
+          </cit>
+        </sense>
+        <sense n="2">
+          <cit type="trans">
+            <quote>القنبلة الذرية</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>A-good</orth>
+        </form>
+        <sense n="1">
+          <cit type="trans">
+            <quote>بحماس</quote>
+          </cit>
+        </sense>
+        <sense n="2">
+          <cit type="trans">
+            <quote>جيّدًا</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>A-ha</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>آها -  فرقة بوب نرويجيّة</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>A-law</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>المقياس المستخدم في التحويل بين</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>A-line</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>اصطفّ، فستان ضيّق من الأعلى وواسع من</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>A-ok</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>ممتاز</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>A-one</orth>
+        </form>
+        <sense n="1">
+          <cit type="trans">
+            <quote>ممتاز</quote>
+          </cit>
+        </sense>
+        <sense n="2">
+          <cit type="trans">
+            <quote>من الدرجة الأولى</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>A1</orth>
+        </form>
+        <sense n="1">
+          <cit type="trans">
+            <quote>ممتاز</quote>
+          </cit>
+        </sense>
+        <sense n="2">
+          <cit type="trans">
+            <quote>من الدرجة الأولى</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>AAA</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>التوثيق والتفويض والمحاسبة</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>AAAS</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>الرابطة الأمريكية لتقدّم العلم</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>AAU</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>اتّحاد هواة الرّياضة</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>ABA</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>رابطة المصرفيين الأمريكية</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>AC</orth>
+        </form>
+        <sense n="1">
+          <cit type="trans">
+            <quote>مكيّف هواء</quote>
+          </cit>
+        </sense>
+        <sense n="2">
+          <cit type="trans">
+            <quote>تيّار متردد</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>ACLU</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>اتحاد الحريات المدنية الأمريكيّ</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>ACM</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>مادّة تحتوي  على أسبستوس</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>ACS</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>الجمعيّة العربيّة للكمبيوتر</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>AI</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>الذكاء الصناعيّ</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>AK</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>ولاية آلاسكا الأمريكية</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>AL</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>ولاية ألاباما الأمريكية</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>ALU</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>وحدة المنطق الحسابيّة</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>AMA</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>الجمعية الطبية الأمريكية</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>ANSI</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>المؤسسة الأمريكية الوطنية للمقاييس</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>APS</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>نظام الصّورة المتقدّم</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>AR</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>ولاية أركانسو الأمريكية</quote>
+          </cit>
+        </sense>
+      </entry>
+      <entry>
+        <form>
+          <orth>ARCO</orth>
+        </form>
+        <sense>
+          <cit type="trans">
+            <quote>شركه أركو للوقود</quote>
+          </cit>
+        </sense>
+
+
