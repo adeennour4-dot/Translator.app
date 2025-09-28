@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "com.translationstudio.app"
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    namespace "com.translator.app"
+    compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.translationstudio.app"
+        applicationId "com.translator.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -16,13 +16,6 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
-
-    // FIX 1: JAVA COMPATIBILITY (solves 'invalid source release: 21' error)
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -43,10 +36,6 @@ dependencies {
     implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
     implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
     implementation project(':capacitor-android')
-    
-    // FIX 2: PDFBOX DEPENDENCY (Temporarily commented out to let the build pass)
-    // implementation 'com.tom-roush:pdfbox-android:1.8.17-a' 
-    
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
@@ -63,5 +52,3 @@ try {
 } catch(Exception e) {
     logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
 }
-// The file is now syntactically correct and ends here.
-

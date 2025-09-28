@@ -1,4 +1,4 @@
-package com.translationstudio.app;
+package com.translator.app;
 
 import com.getcapacitor.BridgeActivity;
 
