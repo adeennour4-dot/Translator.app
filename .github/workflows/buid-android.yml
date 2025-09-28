@@ -25,7 +25,7 @@ jobs:
       - name: Setup pnpm (action)
         uses: pnpm/action-setup@v3
         with:
-          version: 9
+          version: 8
 
       # Verify pnpm and fallbacks (corepack / npm -g) — prints debug info
       - name: Ensure pnpm is available (verify + fallbacks)
@@ -47,7 +47,7 @@ jobs:
           echo "pnpm not found after pnpm/action-setup — trying corepack..."
           # corepack is bundled with modern Node; enable and prepare pnpm
           corepack enable || echo "corepack enable failed (non-fatal)"
-          corepack prepare pnpm@9 --activate || echo "corepack prepare failed (non-fatal)"
+          corepack prepare pnpm@8 --activate || echo "corepack prepare failed (non-fatal)"
 
           if command -v pnpm >/dev/null 2>&1; then
             echo "pnpm available via corepack: $(pnpm -v)"
@@ -56,7 +56,7 @@ jobs:
           fi
 
           echo "corepack didn't provide pnpm — installing globally with npm"
-          npm install -g pnpm@9
+          npm install -g pnpm@8
 
           if command -v pnpm >/dev/null 2>&1; then
             echo "pnpm available after npm -g: $(pnpm -v)"
@@ -88,9 +88,9 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # Add Android platform (Capacitor)
+      # Add Android platform (Capacitor) - This step is usually done locally once, but kept for completeness if needed in CI
       - name: Add Android Platform
-        run: npx cap add android
+        run: npx cap add android || true # Use || true to prevent failure if platform already added
 
       - name: Sync Capacitor project
         run: npx cap sync android
